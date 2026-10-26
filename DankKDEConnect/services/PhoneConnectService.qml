@@ -61,7 +61,7 @@ Singleton {
     }
 
     property var _backend: null
-    property bool _nameWatchSubscribed: false
+    property string _nameWatchSubscription: ""
 
     readonly property var _backendBusNames: ["org.kde.kdeconnect", "ca.andyholmes.Valent"]
 
@@ -74,20 +74,20 @@ Singleton {
     signal backendChanged
 
     Component.onCompleted: {
-        watchBusNames();
-        detectBackend();
+        if (DMSService.subscribeConnected)
+            resync();
         updateDeviceTypeMap();
     }
 
     Connections {
         target: DMSService
         function onConnectionStateChanged() {
-            if (!DMSService.isConnected) {
-                root._nameWatchSubscribed = false;
-                return;
-            }
-            root.watchBusNames();
-            root.detectBackend();
+            if (!DMSService.isConnected)
+                root._nameWatchSubscription = "";
+        }
+
+        function onCapabilitiesReceived() {
+            root.resync();
         }
 
         function onDbusSignalReceived(subId, data) {
@@ -108,15 +108,24 @@ Singleton {
         }
     }
 
-    function watchBusNames() {
-        if (_nameWatchSubscribed || !DMSService.isConnected)
+    // Daemons before the match-ownership fix drop every dbus match when the shell re-dials its subscribe socket.
+    function resync() {
+        if (!DMSService.capabilities.includes("dbus"))
             return;
-        _nameWatchSubscribed = true;
+        watchBusNames();
+        detectBackend();
+    }
+
+    function watchBusNames() {
+        if (_nameWatchSubscription !== "")
+            DMSService.dbusUnsubscribe(_nameWatchSubscription);
+        _nameWatchSubscription = "";
         DMSService.dbusSubscribe("session", "org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus", "NameOwnerChanged", function (response) {
             if (response.error) {
                 console.warn("[PhoneConnect] NameOwnerChanged subscription failed:", response.error);
-                root._nameWatchSubscribed = false;
+                return;
             }
+            root._nameWatchSubscription = response.result.subscriptionId;
         });
     }
 

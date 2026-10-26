@@ -432,7 +432,7 @@ PluginComponent {
     }
 
     // Reactive binding: always reflects the latest device data from the service
-    readonly property bool hasDevice: selectedDeviceId !== "" && PhoneConnectService.deviceIds.includes(selectedDeviceId)
+    readonly property bool hasDevice: selectedDeviceId !== "" && !!PhoneConnectService.devices[selectedDeviceId]
     readonly property var selectedDevice: hasDevice ? (PhoneConnectService.devices[selectedDeviceId] ?? null) : null
     readonly property bool isSelectedDeviceMobile: root.selectedDevice && (root.selectedDevice.type === "phone" || root.selectedDevice.type === "smartphone" || root.selectedDevice.type === "tablet")
     readonly property string serviceName: PhoneConnectService.backendName
@@ -449,8 +449,6 @@ PluginComponent {
     ccWidgetIcon: {
         if (!PhoneConnectService.available)
             return "phonelink_off";
-        if (hasDevice && selectedDevice.isReachable)
-            return "phonelink";
         if (hasDevice && selectedDevice.isReachable)
             return "phonelink";
         return "phonelink_off";

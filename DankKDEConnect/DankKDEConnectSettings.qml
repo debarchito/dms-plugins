@@ -45,7 +45,7 @@ PluginSettings {
                 try {
                     deviceTypeMap = JSON.parse(rawMap);
                     return;
-                } catch(e) {}
+                } catch (e) {}
             }
             deviceTypeMap = {};
         }
@@ -57,7 +57,7 @@ PluginSettings {
                 try {
                     deviceImageMap = JSON.parse(rawMap);
                     return;
-                } catch(e) {}
+                } catch (e) {}
             }
             deviceImageMap = {};
         }
@@ -88,8 +88,10 @@ PluginSettings {
         }
 
         function getDeviceImage(deviceId) {
-            if (!deviceId) return "";
-            if (deviceImageMap[deviceId]) return deviceImageMap[deviceId];
+            if (!deviceId)
+                return "";
+            if (deviceImageMap[deviceId])
+                return deviceImageMap[deviceId];
             // Fallback to legacy single image if it's the first device
             if (!hasDeviceImageMapSetting && PhoneConnectService.deviceIds.length > 0 && deviceId === PhoneConnectService.deviceIds[0]) {
                 return loadValue("customPhoneImage", "");
@@ -98,7 +100,8 @@ PluginSettings {
         }
 
         function saveDeviceImage(deviceId, path) {
-            if (!deviceId) return;
+            if (!deviceId)
+                return;
             let newMap = Object.assign({}, deviceImageMap);
             if (path === "" || path === null) {
                 delete newMap[deviceId];
@@ -111,13 +114,15 @@ PluginSettings {
         }
 
         function getDeviceRecentImagesPath(deviceId) {
-            if (!deviceId) return "";
+            if (!deviceId)
+                return "";
             const rawMap = loadValue("deviceRecentImagesPathMap", "");
             if (rawMap) {
                 try {
                     const map = JSON.parse(rawMap);
-                    if (map[deviceId]) return map[deviceId];
-                } catch(e) {}
+                    if (map[deviceId])
+                        return map[deviceId];
+                } catch (e) {}
             }
             // Fallback to legacy single recentImagesPath if it's the first device
             if (PhoneConnectService.deviceIds.length > 0 && deviceId === PhoneConnectService.deviceIds[0]) {
@@ -127,11 +132,14 @@ PluginSettings {
         }
 
         function saveDeviceRecentImagesPath(deviceId, path) {
-            if (!deviceId) return;
+            if (!deviceId)
+                return;
             let map = {};
             const rawMap = loadValue("deviceRecentImagesPathMap", "");
             if (rawMap) {
-                try { map = JSON.parse(rawMap); } catch(e) {}
+                try {
+                    map = JSON.parse(rawMap);
+                } catch (e) {}
             }
             if (path === "" || path === null) {
                 delete map[deviceId];
@@ -143,13 +151,18 @@ PluginSettings {
         }
 
         function getDeviceType(deviceId) {
-            if (!deviceId) return "Phone";
+            if (!deviceId)
+                return "Phone";
             if (deviceTypeMap[deviceId]) {
                 switch (deviceTypeMap[deviceId]) {
-                case "phone": return "Phone";
-                case "tablet": return "Tablet";
-                case "laptop": return "Laptop";
-                case "desktop": return "PC";
+                case "phone":
+                    return "Phone";
+                case "tablet":
+                    return "Tablet";
+                case "laptop":
+                    return "Laptop";
+                case "desktop":
+                    return "PC";
                 }
             }
             // Fallback to real device type from service
@@ -172,13 +185,22 @@ PluginSettings {
         }
 
         function saveDeviceType(deviceId, typeStr) {
-            if (!deviceId) return;
+            if (!deviceId)
+                return;
             let typeVal = "";
             switch (typeStr) {
-            case "Phone": typeVal = "phone"; break;
-            case "Tablet": typeVal = "tablet"; break;
-            case "Laptop": typeVal = "laptop"; break;
-            case "PC": typeVal = "desktop"; break;
+            case "Phone":
+                typeVal = "phone";
+                break;
+            case "Tablet":
+                typeVal = "tablet";
+                break;
+            case "Laptop":
+                typeVal = "laptop";
+                break;
+            case "PC":
+                typeVal = "desktop";
+                break;
             }
 
             let newMap = Object.assign({}, deviceTypeMap);
@@ -190,8 +212,6 @@ PluginSettings {
             deviceTypeMap = newMap;
             saveValue("deviceTypeMap", JSON.stringify(newMap));
         }
-
-
 
         // 1. Connection Status Card
         Rectangle {
@@ -212,7 +232,7 @@ PluginSettings {
                 RowLayout {
                     width: parent.width
                     spacing: Theme.spacingM
-                    DIcon { 
+                    DIcon {
                         name: PhoneConnectService.available ? "check_circle" : "error"
                         size: 22
                         color: PhoneConnectService.available ? Theme.success : Theme.error
@@ -222,25 +242,24 @@ PluginSettings {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignVCenter
                         spacing: Theme.spacingXXS
-                        StyledText { 
+                        StyledText {
                             text: PhoneConnectService.available ? (serviceName + " Running") : "No Backend Running"
                             font.weight: Font.Medium
-                            color: Theme.surfaceText 
+                            color: Theme.surfaceText
                         }
-                        StyledText { 
+                        StyledText {
                             text: PhoneConnectService.available ? ("Announced as: " + PhoneConnectService.announcedName + " (" + PhoneConnectService.selfId + ")") : "Please start kdeconnectd or Valent"
                             font.pixelSize: Theme.fontSizeSmall
-                            color: Theme.surfaceVariantText 
+                            color: Theme.surfaceVariantText
                             width: parent.width
                             wrapMode: Text.WordWrap
                         }
                     }
                     DButton {
-                        visible: PhoneConnectService.available
                         text: "Refresh"
                         iconName: "refresh"
                         Layout.alignment: Qt.AlignVCenter
-                        onClicked: PhoneConnectService.refreshDevices()
+                        onClicked: PhoneConnectService.available ? PhoneConnectService.refreshDevices() : PhoneConnectService.detectBackend()
                     }
                 }
 
@@ -401,12 +420,27 @@ PluginSettings {
                         Row {
                             width: parent.width
                             spacing: Theme.spacingM
-                            DIcon { name: "image"; size: 22; anchors.verticalCenter: parent.verticalCenter; opacity: 0.8 }
+                            DIcon {
+                                name: "image"
+                                size: 22
+                                anchors.verticalCenter: parent.verticalCenter
+                                opacity: 0.8
+                            }
                             Column {
                                 width: Math.max(0, parent.width - 22 - Theme.spacingM)
                                 spacing: Theme.spacingXXS
-                                StyledText { text: "Custom Image"; font.weight: Font.Medium; color: Theme.surfaceText }
-                                StyledText { text: "Custom image to display for this device model in Control Center & Widget Pop-Up."; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText; width: parent.width; wrapMode: Text.WordWrap }
+                                StyledText {
+                                    text: "Custom Image"
+                                    font.weight: Font.Medium
+                                    color: Theme.surfaceText
+                                }
+                                StyledText {
+                                    text: "Custom image to display for this device model in Control Center & Widget Pop-Up."
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    color: Theme.surfaceVariantText
+                                    width: parent.width
+                                    wrapMode: Text.WordWrap
+                                }
                             }
                         }
 
@@ -420,7 +454,7 @@ PluginSettings {
                                 placeholderText: "Absolute path or URL"
                                 text: mainSettingsCol.getDeviceImage(deviceSettingsRect.modelData)
                                 onEditingFinished: {
-                                    mainSettingsCol.saveDeviceImage(deviceSettingsRect.modelData, text)
+                                    mainSettingsCol.saveDeviceImage(deviceSettingsRect.modelData, text);
                                 }
                             }
 
@@ -441,9 +475,7 @@ PluginSettings {
                                         topRightRadius: Theme.cornerRadius
                                         bottomRightRadius: Theme.cornerRadius
 
-                                        color: browseMA.containsMouse 
-                                            ? Theme.withAlpha(Theme.primary, 0.15) 
-                                            : Theme.withAlpha(Theme.surfaceContainer, 0.4)
+                                        color: browseMA.containsMouse ? Theme.withAlpha(Theme.primary, 0.15) : Theme.withAlpha(Theme.surfaceContainer, 0.4)
                                         border.width: 1
                                         border.color: Theme.withAlpha(Theme.primary, browseMA.containsMouse ? 0.3 : 0.15)
                                     }
@@ -496,12 +528,27 @@ PluginSettings {
                         Row {
                             width: parent.width
                             spacing: Theme.spacingM
-                            DIcon { name: "folder"; size: 22; anchors.verticalCenter: parent.verticalCenter; opacity: 0.8 }
+                            DIcon {
+                                name: "folder"
+                                size: 22
+                                anchors.verticalCenter: parent.verticalCenter
+                                opacity: 0.8
+                            }
                             Column {
                                 width: Math.max(0, parent.width - 22 - Theme.spacingM)
                                 spacing: Theme.spacingXXS
-                                StyledText { text: "Recent Images Path"; font.weight: Font.Medium; color: Theme.surfaceText }
-                                StyledText { text: "Directory to monitor for quick media sharing."; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText; width: parent.width; wrapMode: Text.WordWrap }
+                                StyledText {
+                                    text: "Recent Images Path"
+                                    font.weight: Font.Medium
+                                    color: Theme.surfaceText
+                                }
+                                StyledText {
+                                    text: "Directory to monitor for quick media sharing."
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    color: Theme.surfaceVariantText
+                                    width: parent.width
+                                    wrapMode: Text.WordWrap
+                                }
                             }
                         }
 
@@ -516,7 +563,7 @@ PluginSettings {
                                 text: mainSettingsCol.getDeviceRecentImagesPath(deviceSettingsRect.modelData)
                                 onEditingFinished: {
                                     let newText = text;
-                                    PhoneConnectService.getSftpMountPoint(deviceSettingsRect.modelData, function(mountPoint) {
+                                    PhoneConnectService.getSftpMountPoint(deviceSettingsRect.modelData, function (mountPoint) {
                                         if (mountPoint && newText && !newText.startsWith(mountPoint)) {
                                             ToastService.showError("Invalid Path", "Path must be located on the remote device.");
                                             recentImagesPathField.text = mainSettingsCol.getDeviceRecentImagesPath(deviceSettingsRect.modelData);
@@ -532,8 +579,8 @@ PluginSettings {
                                 text: "Browse"
                                 Layout.alignment: Qt.AlignVCenter
                                 onClicked: {
-                                    PhoneConnectService.mountAndWait(deviceSettingsRect.modelData, function(success) {
-                                        PhoneConnectService.getSftpMountPoint(deviceSettingsRect.modelData, function(mountPoint) {
+                                    PhoneConnectService.mountAndWait(deviceSettingsRect.modelData, function (success) {
+                                        PhoneConnectService.getSftpMountPoint(deviceSettingsRect.modelData, function (mountPoint) {
                                             recentImagesBrowser.targetDeviceId = deviceSettingsRect.modelData;
                                             recentImagesBrowser.targetField = recentImagesPathField;
                                             recentImagesBrowser.remoteMountPoint = mountPoint;
@@ -556,12 +603,27 @@ PluginSettings {
                         Row {
                             width: parent.width
                             spacing: Theme.spacingM
-                            DIcon { name: "devices"; size: 22; anchors.verticalCenter: parent.verticalCenter; opacity: 0.8 }
+                            DIcon {
+                                name: "devices"
+                                size: 22
+                                anchors.verticalCenter: parent.verticalCenter
+                                opacity: 0.8
+                            }
                             Column {
                                 width: Math.max(0, parent.width - 22 - Theme.spacingM)
                                 spacing: Theme.spacingXXS
-                                StyledText { text: "Override Device Type"; font.weight: Font.Medium; color: Theme.surfaceText }
-                                StyledText { text: "Select the type of device to override standard framing, icon, and layouts."; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText; width: parent.width; wrapMode: Text.WordWrap }
+                                StyledText {
+                                    text: "Override Device Type"
+                                    font.weight: Font.Medium
+                                    color: Theme.surfaceText
+                                }
+                                StyledText {
+                                    text: "Select the type of device to override standard framing, icon, and layouts."
+                                    font.pixelSize: Theme.fontSizeSmall
+                                    color: Theme.surfaceVariantText
+                                    width: parent.width
+                                    wrapMode: Text.WordWrap
+                                }
                             }
                         }
 
@@ -577,7 +639,7 @@ PluginSettings {
                                 currentValue: mainSettingsCol.getDeviceType(deviceSettingsRect.modelData)
                                 options: ["Phone", "Tablet", "Laptop", "PC"]
                                 optionIcons: ["smartphone", "tablet", "laptop", "desktop_windows"]
-                                onValueChanged: function(val) {
+                                onValueChanged: function (val) {
                                     mainSettingsCol.saveDeviceType(deviceSettingsRect.modelData, val);
                                 }
                             }
@@ -616,7 +678,7 @@ PluginSettings {
                         Component.onCompleted: {
                             checked = mainSettingsCol.loadValue("enableChargingAnimation", true);
                         }
-                        onToggled: function(newChecked) {
+                        onToggled: function (newChecked) {
                             checked = newChecked;
                             mainSettingsCol.saveValue("enableChargingAnimation", newChecked);
                         }
@@ -630,7 +692,7 @@ PluginSettings {
                         Component.onCompleted: {
                             checked = mainSettingsCol.loadValue("enableClipboardAction", true);
                         }
-                        onToggled: function(newChecked) {
+                        onToggled: function (newChecked) {
                             checked = newChecked;
                             mainSettingsCol.saveValue("enableClipboardAction", newChecked);
                         }
@@ -644,7 +706,7 @@ PluginSettings {
                         Component.onCompleted: {
                             checked = mainSettingsCol.loadValue("showOngoingMedia", true);
                         }
-                        onToggled: function(newChecked) {
+                        onToggled: function (newChecked) {
                             checked = newChecked;
                             mainSettingsCol.saveValue("showOngoingMedia", newChecked);
                         }
@@ -658,7 +720,7 @@ PluginSettings {
                         Component.onCompleted: {
                             checked = mainSettingsCol.loadValue("showDevicePlaceholder", true);
                         }
-                        onToggled: function(newChecked) {
+                        onToggled: function (newChecked) {
                             checked = newChecked;
                             mainSettingsCol.saveValue("showDevicePlaceholder", newChecked);
                         }
@@ -672,7 +734,7 @@ PluginSettings {
                         Component.onCompleted: {
                             checked = mainSettingsCol.loadValue("scanSubdirectories", false);
                         }
-                        onToggled: function(newChecked) {
+                        onToggled: function (newChecked) {
                             checked = newChecked;
                             mainSettingsCol.saveValue("scanSubdirectories", newChecked);
                         }
@@ -692,17 +754,34 @@ PluginSettings {
                     RowLayout {
                         width: parent.width
                         spacing: Theme.spacingM
-                        DIcon { name: "photo_library"; size: 22; Layout.alignment: Qt.AlignVCenter; opacity: 0.8 }
+                        DIcon {
+                            name: "photo_library"
+                            size: 22
+                            Layout.alignment: Qt.AlignVCenter
+                            opacity: 0.8
+                        }
                         Column {
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignVCenter
                             spacing: Theme.spacingXXS
-                            StyledText { text: "Max Recent Images"; width: parent.width; font.weight: Font.Medium; color: Theme.surfaceText }
-                            StyledText { text: "Number of recent images to display in the popout."; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText; width: parent.width; wrapMode: Text.WordWrap }
+                            StyledText {
+                                text: "Max Recent Images"
+                                width: parent.width
+                                font.weight: Font.Medium
+                                color: Theme.surfaceText
+                            }
+                            StyledText {
+                                text: "Number of recent images to display in the popout."
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.surfaceVariantText
+                                width: parent.width
+                                wrapMode: Text.WordWrap
+                            }
                         }
                         Rectangle {
                             id: limitResetBtn
-                            width: 32; height: 32
+                            width: 32
+                            height: 32
                             radius: Theme.cornerRadius
                             Layout.alignment: Qt.AlignVCenter
                             color: limitResetMa.containsMouse ? Theme.surfaceContainerHighest : Theme.surfaceContainerHigh
@@ -711,17 +790,34 @@ PluginSettings {
                             opacity: limitSlider.value !== limitSlider.defaultValue ? (limitResetMa.containsMouse ? 1.0 : 0.9) : 0.0
                             visible: opacity > 0
                             scale: limitResetMa.containsMouse ? 1.1 : 1.0
-                            
-                            Behavior on color { ColorAnimation { duration: 150 } }
-                            Behavior on border.color { ColorAnimation { duration: 150 } }
-                            Behavior on opacity { NumberAnimation { duration: 250 } }
-                            Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutBack } }
 
-                            DRipple { 
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 150
+                                }
+                            }
+                            Behavior on border.color {
+                                ColorAnimation {
+                                    duration: 150
+                                }
+                            }
+                            Behavior on opacity {
+                                NumberAnimation {
+                                    duration: 250
+                                }
+                            }
+                            Behavior on scale {
+                                NumberAnimation {
+                                    duration: 250
+                                    easing.type: Easing.OutBack
+                                }
+                            }
+
+                            DRipple {
                                 id: limitRip
                                 anchors.fill: parent
                                 cornerRadius: parent.radius
-                                rippleColor: Theme.primary 
+                                rippleColor: Theme.primary
                             }
 
                             DIcon {
@@ -730,7 +826,12 @@ PluginSettings {
                                 anchors.centerIn: parent
                                 color: limitResetMa.containsMouse ? Theme.primary : Theme.surfaceVariantText
                                 rotation: limitResetMa.containsMouse ? 90 : 0
-                                Behavior on rotation { NumberAnimation { duration: 450; easing.type: Easing.OutBack } }
+                                Behavior on rotation {
+                                    NumberAnimation {
+                                        duration: 450
+                                        easing.type: Easing.OutBack
+                                    }
+                                }
                             }
 
                             MouseArea {
@@ -742,7 +843,9 @@ PluginSettings {
                                     limitResetAnim.restart();
                                     mainSettingsCol.saveValue(limitSlider.settingKey, limitSlider.defaultValue);
                                 }
-                                onPressed: function(m) { limitRip.trigger(m.x, m.y) }
+                                onPressed: function (m) {
+                                    limitRip.trigger(m.x, m.y);
+                                }
                             }
                         }
                     }
@@ -766,7 +869,7 @@ PluginSettings {
                         step: 1
                         unit: " images"
                         wheelEnabled: false
-                        
+
                         function loadValue() {
                             value = mainSettingsCol.loadValue(settingKey, defaultValue);
                         }
@@ -779,7 +882,7 @@ PluginSettings {
                         MouseArea {
                             anchors.fill: parent
                             acceptedButtons: Qt.NoButton
-                            onWheel: (wheel) => {
+                            onWheel: wheel => {
                                 wheel.accepted = false;
                             }
                         }
@@ -799,18 +902,35 @@ PluginSettings {
                     RowLayout {
                         width: parent.width
                         spacing: Theme.spacingM
-                        DIcon { name: "sync"; size: 22; Layout.alignment: Qt.AlignVCenter; opacity: 0.8 }
+                        DIcon {
+                            name: "sync"
+                            size: 22
+                            Layout.alignment: Qt.AlignVCenter
+                            opacity: 0.8
+                        }
                         Column {
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignVCenter
                             spacing: Theme.spacingXXS
-                            StyledText { text: "State Update Interval"; width: parent.width; font.weight: Font.Medium; color: Theme.surfaceText }
-                            StyledText { text: "How often to automatically update/refresh the plugin state."; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText; width: parent.width; wrapMode: Text.WordWrap }
+                            StyledText {
+                                text: "State Update Interval"
+                                width: parent.width
+                                font.weight: Font.Medium
+                                color: Theme.surfaceText
+                            }
+                            StyledText {
+                                text: "How often to automatically update/refresh the plugin state."
+                                font.pixelSize: Theme.fontSizeSmall
+                                color: Theme.surfaceVariantText
+                                width: parent.width
+                                wrapMode: Text.WordWrap
+                            }
                         }
 
                         Rectangle {
                             id: intervalResetBtn
-                            width: 32; height: 32
+                            width: 32
+                            height: 32
                             radius: Theme.cornerRadius
                             Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
                             color: intervalResetMa.containsMouse ? Theme.surfaceContainerHighest : Theme.surfaceContainerHigh
@@ -819,17 +939,34 @@ PluginSettings {
                             opacity: updateIntervalSlider.value !== updateIntervalSlider.defaultValue ? (intervalResetMa.containsMouse ? 1.0 : 0.9) : 0.0
                             visible: opacity > 0
                             scale: intervalResetMa.containsMouse ? 1.1 : 1.0
-                            
-                            Behavior on color { ColorAnimation { duration: 150 } }
-                            Behavior on border.color { ColorAnimation { duration: 150 } }
-                            Behavior on opacity { NumberAnimation { duration: 250 } }
-                            Behavior on scale { NumberAnimation { duration: 250; easing.type: Easing.OutBack } }
+
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 150
+                                }
+                            }
+                            Behavior on border.color {
+                                ColorAnimation {
+                                    duration: 150
+                                }
+                            }
+                            Behavior on opacity {
+                                NumberAnimation {
+                                    duration: 250
+                                }
+                            }
+                            Behavior on scale {
+                                NumberAnimation {
+                                    duration: 250
+                                    easing.type: Easing.OutBack
+                                }
+                            }
 
                             DRipple {
                                 id: intervalRip
                                 anchors.fill: parent
                                 cornerRadius: parent.radius
-                                rippleColor: Theme.primary 
+                                rippleColor: Theme.primary
                             }
 
                             DIcon {
@@ -838,7 +975,12 @@ PluginSettings {
                                 anchors.centerIn: parent
                                 color: intervalResetMa.containsMouse ? Theme.primary : Theme.surfaceVariantText
                                 rotation: intervalResetMa.containsMouse ? 90 : 0
-                                Behavior on rotation { NumberAnimation { duration: 450; easing.type: Easing.OutBack } }
+                                Behavior on rotation {
+                                    NumberAnimation {
+                                        duration: 450
+                                        easing.type: Easing.OutBack
+                                    }
+                                }
                             }
 
                             MouseArea {
@@ -850,7 +992,9 @@ PluginSettings {
                                     intervalResetAnim.restart();
                                     mainSettingsCol.saveValue(updateIntervalSlider.settingKey, updateIntervalSlider.defaultValue);
                                 }
-                                onPressed: function(m) { intervalRip.trigger(m.x, m.y) }
+                                onPressed: function (m) {
+                                    intervalRip.trigger(m.x, m.y);
+                                }
                             }
                         }
                     }
@@ -874,7 +1018,7 @@ PluginSettings {
                         step: 5
                         unit: value === 0 ? " Disabled" : " seconds"
                         wheelEnabled: false
-                        
+
                         function loadValue() {
                             value = mainSettingsCol.loadValue(settingKey, defaultValue);
                         }
@@ -887,7 +1031,7 @@ PluginSettings {
                         MouseArea {
                             anchors.fill: parent
                             acceptedButtons: Qt.NoButton
-                            onWheel: (wheel) => {
+                            onWheel: wheel => {
                                 wheel.accepted = false;
                             }
                         }
@@ -915,8 +1059,16 @@ PluginSettings {
                 Column {
                     width: parent.width
                     spacing: Theme.spacingXXS
-                    StyledText { text: "Quick Actions Guide"; font.weight: Font.Medium; color: Theme.surfaceText }
-                    StyledText { text: "Actions available in the popout for paired devices:"; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText }
+                    StyledText {
+                        text: "Quick Actions Guide"
+                        font.weight: Font.Medium
+                        color: Theme.surfaceText
+                    }
+                    StyledText {
+                        text: "Actions available in the popout for paired devices:"
+                        font.pixelSize: Theme.fontSizeSmall
+                        color: Theme.surfaceVariantText
+                    }
                 }
 
                 Column {
@@ -925,33 +1077,81 @@ PluginSettings {
 
                     Row {
                         spacing: Theme.spacingS
-                        DIcon { name: "phone_in_talk"; size: 16; color: Theme.surfaceVariantText }
-                        StyledText { text: "Ring - Make your phone ring to find it"; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText }
+                        DIcon {
+                            name: "phone_in_talk"
+                            size: 16
+                            color: Theme.surfaceVariantText
+                        }
+                        StyledText {
+                            text: "Ring - Make your phone ring to find it"
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: Theme.surfaceVariantText
+                        }
                     }
                     Row {
                         spacing: Theme.spacingS
-                        DIcon { name: "notifications_active"; size: 16; color: Theme.surfaceVariantText }
-                        StyledText { text: "Ping - Send a notification to the device"; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText }
+                        DIcon {
+                            name: "notifications_active"
+                            size: 16
+                            color: Theme.surfaceVariantText
+                        }
+                        StyledText {
+                            text: "Ping - Send a notification to the device"
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: Theme.surfaceVariantText
+                        }
                     }
                     Row {
                         spacing: Theme.spacingS
-                        DIcon { name: "content_paste"; size: 16; color: Theme.surfaceVariantText }
-                        StyledText { text: "Clipboard - Send clipboard to the device"; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText }
+                        DIcon {
+                            name: "content_paste"
+                            size: 16
+                            color: Theme.surfaceVariantText
+                        }
+                        StyledText {
+                            text: "Clipboard - Send clipboard to the device"
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: Theme.surfaceVariantText
+                        }
                     }
                     Row {
                         spacing: Theme.spacingS
-                        DIcon { name: "share"; size: 16; color: Theme.surfaceVariantText }
-                        StyledText { text: "Share - Send URLs or text to the device"; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText }
+                        DIcon {
+                            name: "share"
+                            size: 16
+                            color: Theme.surfaceVariantText
+                        }
+                        StyledText {
+                            text: "Share - Send URLs or text to the device"
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: Theme.surfaceVariantText
+                        }
                     }
                     Row {
                         spacing: Theme.spacingS
-                        DIcon { name: "folder"; size: 16; color: Theme.surfaceVariantText }
-                        StyledText { text: "Browse - Open device file browser (SFTP)"; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText }
+                        DIcon {
+                            name: "folder"
+                            size: 16
+                            color: Theme.surfaceVariantText
+                        }
+                        StyledText {
+                            text: "Browse - Open device file browser (SFTP)"
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: Theme.surfaceVariantText
+                        }
                     }
                     Row {
                         spacing: Theme.spacingS
-                        DIcon { name: "sms"; size: 16; color: Theme.surfaceVariantText }
-                        StyledText { text: "SMS - Send text messages or open SMS app"; font.pixelSize: Theme.fontSizeSmall; color: Theme.surfaceVariantText }
+                        DIcon {
+                            name: "sms"
+                            size: 16
+                            color: Theme.surfaceVariantText
+                        }
+                        StyledText {
+                            text: "SMS - Send text messages or open SMS app"
+                            font.pixelSize: Theme.fontSizeSmall
+                            color: Theme.surfaceVariantText
+                        }
                     }
                 }
             }
@@ -989,13 +1189,13 @@ PluginSettings {
         browserType: "generic"
         showHiddenFiles: false
         fileExtensions: ["*.png", "*.jpg", "*.jpeg", "*.webp"]
-        
-        onFileSelected: function(path) {
-            const urlPath = "file://" + path
+
+        onFileSelected: function (path) {
+            const urlPath = "file://" + path;
             if (targetField) {
-                targetField.text = urlPath
+                targetField.text = urlPath;
             }
-            mainSettingsCol.saveDeviceImage(targetDeviceId, urlPath)
+            mainSettingsCol.saveDeviceImage(targetDeviceId, urlPath);
         }
     }
 
@@ -1006,8 +1206,8 @@ PluginSettings {
         property string remoteMountPoint: ""
 
         title: "Select Recent Images Folder"
-        
-        onAccepted: function() {
+
+        onAccepted: function () {
             var path = selectedFolder.toString();
             if (path.startsWith("file://")) {
                 path = path.substring(7);
@@ -1017,9 +1217,9 @@ PluginSettings {
                 return;
             }
             if (targetField) {
-                targetField.text = path
+                targetField.text = path;
             }
-            mainSettingsCol.saveDeviceRecentImagesPath(targetDeviceId, path)
+            mainSettingsCol.saveDeviceRecentImagesPath(targetDeviceId, path);
         }
     }
 }
