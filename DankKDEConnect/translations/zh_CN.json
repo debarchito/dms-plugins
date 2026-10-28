@@ -24,7 +24,7 @@
     "Enter URI or text to share": "输入 URI 或文本以分享"
   },
   "Excellent": {
-    "Excellent": ""
+    "Excellent": "极佳"
   },
   "Failed to accept pairing": {
     "Failed to accept pairing": "接受配对失败"
@@ -87,7 +87,7 @@
     "Next": "下一个"
   },
   "No Signal": {
-    "No Signal": ""
+    "No Signal": "无信号"
   },
   "No devices": {
     "No devices": "无设备"
@@ -228,7 +228,7 @@
     "Verification": "验证"
   },
   "Weak": {
-    "Weak": ""
+    "Weak": "弱"
   },
   "device": {
     "device": "设备"

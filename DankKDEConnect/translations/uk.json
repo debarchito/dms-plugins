@@ -24,7 +24,7 @@
     "Enter URI or text to share": "Введіть URI або текст для поширення"
   },
   "Excellent": {
-    "Excellent": ""
+    "Excellent": "Відмінно"
   },
   "Failed to accept pairing": {
     "Failed to accept pairing": "Не вдалося прийняти сполучення"
@@ -57,7 +57,7 @@
     "Failed to share": "Не вдалося поширити"
   },
   "Fair": {
-    "Fair": ""
+    "Fair": "Задовільно"
   },
   "File": {
     "File": "Файл"
@@ -87,7 +87,7 @@
     "Next": "Далі"
   },
   "No Signal": {
-    "No Signal": ""
+    "No Signal": "Немає сигналу"
   },
   "No devices": {
     "No devices": "Пристроїв немає"
@@ -228,7 +228,7 @@
     "Verification": "Верифікація"
   },
   "Weak": {
-    "Weak": ""
+    "Weak": "Слабкий"
   },
   "device": {
     "device": "пристрій"
